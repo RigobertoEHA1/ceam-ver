@@ -1,0 +1,26 @@
+iframe { height: 380px; width: 99%  }
+input[type="image"] { cursor: pointer; }
+
+
+
+/*clases propias*/
+.banner-geda { background: url(http://cdn.sev.gob.mx/img/sistemas/sev-educacion.png) no-repeat; border-bottom: 2px solid #d66b53; height: 5em; padding-right: .5em; text-align: right; }
+
+.mensajeError-geda {color:red; font-size:larger}
+
+/*clases sobreescritas*/
+
+.table-responsive-xs-geda { font-size: 1rem; } 
+
+.container-fluid { width: 90% }
+
+.rbl-geda label { display: inline; padding: 0.5rem; }
+
+.panel-default > .panel-heading { background-color: #818285;  color: #fff;}
+
+.texto-jumbo-geda { font-size: 2rem; }
+
+.texto-glyphicon-geda { margin-left: 0.5rem; margin-right: 0.5rem; }
+
+.no-gutter-geda { margin-right: 0; margin-left: 0; }
+.no-gutter-geda > [class*="col-"] { padding-right: 0; padding-left: 0; }
