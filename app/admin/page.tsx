@@ -198,11 +198,11 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8 font-sans">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8 font-sans">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Administración de Constancias</h1>
-          <div className="flex gap-4">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Administración de Constancias</h1>
+          <div className="flex flex-wrap gap-2 md:gap-4">
             <Link 
               href="/admin/calibrar"
               className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md font-medium transition-all cursor-pointer shadow-sm hover:shadow-md"
@@ -224,63 +224,123 @@ export default function AdminPage() {
         {loading ? (
           <div className="text-center py-12">Cargando...</div>
         ) : (
-          <div className="bg-white shadow rounded-lg overflow-hidden flex flex-col">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CURP</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Curso</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">URL Validación</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {constancias.map((item) => (
-                    <tr key={item.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
-                          {item.nombre} {item.primer_ap} {item.segundo_ap}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {item.curp}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {item.curso.substring(0, 40)}{item.curso.length > 40 ? "..." : ""}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 hover:underline">
-                        <a href={`/ValidaQR.aspx?data=${item.data_hash}&token=${encodeURIComponent(item.token)}`} target="_blank" rel="noreferrer">
-                          Ver Validación
-                        </a>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex justify-end gap-3">
-                          <button onClick={() => handleGeneratePDF(item)} className="text-indigo-600 hover:text-indigo-900 cursor-pointer p-1 rounded-full hover:bg-indigo-50 transition-colors" title="Descargar PDF">
-                            <Download className="w-5 h-5" />
-                          </button>
-                          <button onClick={() => openEditModal(item)} className="text-blue-600 hover:text-blue-900 cursor-pointer p-1 rounded-full hover:bg-blue-50 transition-colors" title="Editar">
-                            <Edit className="w-5 h-5" />
-                          </button>
-                          <button onClick={() => handleDelete(item.id!)} className="text-red-600 hover:text-red-900 cursor-pointer p-1 rounded-full hover:bg-red-50 transition-colors" title="Eliminar">
-                            <Trash2 className="w-5 h-5" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {constancias.length === 0 && (
-                    <tr>
-                      <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
-                        No hay constancias registradas.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+          <>
+            {/* Mobile View (Cards) */}
+            <div className="grid grid-cols-1 gap-4 md:hidden">
+              {constancias.map((item) => (
+                <div key={item.id} className="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex flex-col gap-4">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Nombre Completo</p>
+                      <p className="text-sm font-bold text-gray-900 leading-tight">
+                        {item.nombre} {item.primer_ap} {item.segundo_ap}
+                      </p>
+                    </div>
+                    <div className="flex gap-1">
+                      <button onClick={() => handleGeneratePDF(item)} className="p-2 text-indigo-600 bg-indigo-50 rounded-lg" title="Descargar PDF">
+                        <Download className="w-5 h-5" />
+                      </button>
+                      <button onClick={() => openEditModal(item)} className="p-2 text-blue-600 bg-blue-50 rounded-lg" title="Editar">
+                        <Edit className="w-5 h-5" />
+                      </button>
+                      <button onClick={() => handleDelete(item.id!)} className="p-2 text-red-600 bg-red-50 rounded-lg" title="Eliminar">
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">CURP</p>
+                      <p className="text-xs font-medium text-gray-600">{item.curp}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Acción</p>
+                      <a 
+                        href={`/ValidaQR.aspx?data=${item.data_hash}&token=${encodeURIComponent(item.token)}`} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        className="text-xs font-bold text-blue-600 underline"
+                      >
+                        Ver QR
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-gray-100">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Acción de Formación</p>
+                    <p className="text-xs text-gray-600 line-clamp-2 italic">
+                      "{item.curso}"
+                    </p>
+                  </div>
+                </div>
+              ))}
+              {constancias.length === 0 && (
+                <div className="bg-white p-12 text-center text-gray-500 rounded-xl border border-dashed border-gray-300">
+                  No hay constancias registradas.
+                </div>
+              )}
             </div>
-          </div>
+
+            {/* Desktop View (Table) */}
+            <div className="hidden md:flex bg-white shadow rounded-lg overflow-hidden flex-col">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CURP</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Curso</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">URL Validación</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {constancias.map((item) => (
+                      <tr key={item.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">
+                            {item.nombre} {item.primer_ap} {item.segundo_ap}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {item.curp}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {item.curso.substring(0, 40)}{item.curso.length > 40 ? "..." : ""}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 hover:underline">
+                          <a href={`/ValidaQR.aspx?data=${item.data_hash}&token=${encodeURIComponent(item.token)}`} target="_blank" rel="noreferrer">
+                            Ver Validación
+                          </a>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <div className="flex justify-end gap-3">
+                            <button onClick={() => handleGeneratePDF(item)} className="text-indigo-600 hover:text-indigo-900 cursor-pointer p-1 rounded-full hover:bg-indigo-50 transition-colors" title="Descargar PDF">
+                              <Download className="w-5 h-5" />
+                            </button>
+                            <button onClick={() => openEditModal(item)} className="text-blue-600 hover:text-blue-900 cursor-pointer p-1 rounded-full hover:bg-blue-50 transition-colors" title="Editar">
+                              <Edit className="w-5 h-5" />
+                            </button>
+                            <button onClick={() => handleDelete(item.id!)} className="text-red-600 hover:text-red-900 cursor-pointer p-1 rounded-full hover:bg-red-50 transition-colors" title="Eliminar">
+                              <Trash2 className="w-5 h-5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {constancias.length === 0 && (
+                      <tr>
+                        <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                          No hay constancias registradas.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
         )}
       </div>
 

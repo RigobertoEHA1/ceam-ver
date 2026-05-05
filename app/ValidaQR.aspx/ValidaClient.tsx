@@ -101,14 +101,26 @@ export default function ValidaClient({
         .texto-glyphicon-geda { margin-left: 0.5rem; margin-right: 0.5rem; }
         .no-gutter-geda { margin-right: 0; margin-left: 0; }
         .no-gutter-geda > [class*="col-"] { padding-right: 0; padding-left: 0; }
+
+        .valida-title { font-size: 63px; }
+        .custom-jumbotron { padding: 48px 30px; }
+
+        @media (max-width: 767px) {
+          .valida-title { font-size: 36px; text-align: center; }
+          .custom-jumbotron { padding: 30px 15px; }
+          .banner-geda { height: 3.5em; background-size: contain; background-position: left center; }
+          .container-fluid { width: 95%; padding-left: 10px; padding-right: 10px; }
+          h3 { font-size: 20px; }
+          .panel-body { padding: 10px; }
+        }
       `}</style>
 
       <div className="container-fluid" style={{ marginTop: "20px" }}>
         <div className="banner-geda"></div>          
 
         <div id="pValido">
-            <div className="jumbotron" style={{ backgroundColor: "#eee", marginTop: "20px", padding: "48px 30px", borderRadius: "6px" }}>
-                <h1 style={{ fontSize: "63px", fontWeight: "500", marginTop: "10px", marginBottom: "10px", color: "#333" }}>
+            <div className="jumbotron custom-jumbotron" style={{ backgroundColor: "#eee", marginTop: "20px", borderRadius: "6px" }}>
+                <h1 className="valida-title" style={{ fontWeight: "500", marginTop: "10px", marginBottom: "10px", color: "#333" }}>
                     La constancia es válida
                 </h1>
             </div>
