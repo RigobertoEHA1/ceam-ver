@@ -18,7 +18,6 @@ interface Constancia {
   fecha_expedicion: string;
   funcionario: string;
   token: string;
-  data_hash: string;
 }
 
 export default function ValidaClient({
@@ -168,16 +167,7 @@ export default function ValidaClient({
                             <div className="col-sm-4"><strong><span id="lNombreEtiqueta">Nombre de la Acción de formación</span></strong>
                                     <div className="form-group">
                                     <p className="form-control-static">
-                                        <span id="lNombreCurso">
-                                            <a 
-                                                href={`https://siceam.sev.gob.mx/ValidaQR.aspx?data=${constancia.data_hash || dataHash}`} 
-                                                target="_blank" 
-                                                rel="noopener noreferrer"
-                                                style={{ color: "#337ab7", textDecoration: "none" }}
-                                            >
-                                                {constancia.curso}
-                                            </a>
-                                        </span>
+                                        <span id="lNombreCurso">{constancia.curso}</span>
                                     </p>
                                 </div>
                             </div>  
