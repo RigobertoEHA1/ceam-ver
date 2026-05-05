@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
-
-const configPath = path.join(process.cwd(), "pdf_coords.json");
+import { supabase } from "../../../lib/supabase";
 
 const defaultCoords = {
   nombre: { x: 150, y: 525, w: 200 },
@@ -27,10 +24,20 @@ const defaultCoords = {
 
 export async function GET() {
   try {
-    const data = await fs.readFile(configPath, "utf-8");
-    return NextResponse.json(JSON.parse(data));
+    const { data, error } = await supabase
+      .from("pdf_config")
+      .select("config")
+      .order("id", { ascending: false })
+      .limit(1)
+      .single();
+
+    if (error || !data) {
+      console.log("No se encontró configuración en Supabase, usando valores por defecto.");
+      return NextResponse.json(defaultCoords);
+    }
+    
+    return NextResponse.json(data.config);
   } catch (e) {
-    // If file doesn't exist, return defaults
     return NextResponse.json(defaultCoords);
   }
 }
@@ -38,10 +45,34 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const coords = await req.json();
-    await fs.writeFile(configPath, JSON.stringify(coords, null, 2), "utf-8");
+    
+    // Intentamos actualizar la última configuración o insertar una nueva
+    const { data: existing } = await supabase
+      .from("pdf_config")
+      .select("id")
+      .order("id", { ascending: false })
+      .limit(1)
+      .single();
+
+    let error;
+    if (existing) {
+      const result = await supabase
+        .from("pdf_config")
+        .update({ config: coords, updated_at: new Date().toISOString() })
+        .eq("id", existing.id);
+      error = result.error;
+    } else {
+      const result = await supabase
+        .from("pdf_config")
+        .insert([{ config: coords }]);
+      error = result.error;
+    }
+
+    if (error) throw error;
+    
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error saving coords:", error);
+    console.error("Error saving coords to Supabase:", error);
     return NextResponse.json({ error: "Failed to save" }, { status: 500 });
   }
 }

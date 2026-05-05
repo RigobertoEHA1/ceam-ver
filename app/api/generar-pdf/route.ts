@@ -1,23 +1,24 @@
 import { NextResponse } from "next/server";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
-import fs from "fs/promises";
-import path from "path";
+import { supabase } from "../../../lib/supabase";
 import QRCode from "qrcode";
 
 export async function POST(req: Request) {
   try {
     const constancia = await req.json();
 
-    const templatePath = path.join(process.cwd(), "public", "plantilla.pdf");
-    
+    // 1. Obtener plantilla
     let templateBytes;
     try {
+      const fs = await import("fs/promises");
+      const path = await import("path");
+      const templatePath = path.join(process.cwd(), "public", "plantilla.pdf");
       templateBytes = await fs.readFile(templatePath);
     } catch (e) {
-      console.error("Plantilla PDF no encontrada en public/plantilla.pdf");
+      console.error("Error leyendo plantilla PDF:", e);
       return NextResponse.json(
-        { error: "La plantilla PDF no existe. Coloca plantilla.pdf en la carpeta public." },
-        { status: 404 }
+        { error: "No se pudo leer la plantilla PDF. Asegúrate de que public/plantilla.pdf existe." },
+        { status: 500 }
       );
     }
 
@@ -42,45 +43,38 @@ export async function POST(req: Request) {
       });
     };
 
-    const drawWrappedString = (text: string, font: any, size: number, x: number, y: number, charsPerLine: number, lineHeight: number) => {
-      const regex = new RegExp(`.{1,${charsPerLine}}`, "g");
-      const lines = text.match(regex) || [];
-      lines.forEach((line, i) => {
-        firstPage.drawText(line, {
-          x: x,
-          y: y - (i * lineHeight),
-          size: size,
-          font: font,
-          color: rgb(0.1, 0.1, 0.1),
-        });
-      });
+    // Leer configuración de coordenadas desde Supabase
+    let coords: any = {
+      nombre: { x: 150, y: 535, w: 200 },
+      primer_ap: { x: 306, y: 535, w: 150 },
+      segundo_ap: { x: 462, y: 535, w: 150 },
+      curp: { x: 306, y: 490, w: 200 },
+      curso_line1: { x: 306, y: 435, w: 400 },
+      programa: { x: 306, y: 395, w: 300 },
+      registro: { x: 306, y: 365, w: 200 },
+      tipo_formacion: { x: 170, y: 340, w: 150 },
+      duracion: { x: 450, y: 340, w: 150 },
+      modalidad: { x: 170, y: 295, w: 150 },
+      periodo_line1: { x: 450, y: 302, w: 250 },
+      lugar: { x: 170, y: 235, w: 250 },
+      fecha: { x: 450, y: 235, w: 200 },
+      sello: { x: 165, y: 160, w: 300 },
+      qr: { x: 54, y: 70, w: 100, h: 100 }
     };
 
-    // Leer configuración de coordenadas
-    const configPath = path.join(process.cwd(), "pdf_coords.json");
-    let coords: any = {};
     try {
-      const coordsData = await fs.readFile(configPath, "utf-8");
-      coords = JSON.parse(coordsData);
+      const { data: dbConfig } = await supabase
+        .from("pdf_config")
+        .select("config")
+        .order("id", { ascending: false })
+        .limit(1)
+        .single();
+      
+      if (dbConfig && dbConfig.config) {
+        coords = dbConfig.config;
+      }
     } catch (e) {
-      console.log("No se encontró pdf_coords.json, usando valores por defecto.");
-      coords = {
-        nombre: { x: 150, y: 535, w: 200 },
-        primer_ap: { x: 306, y: 535, w: 150 },
-        segundo_ap: { x: 462, y: 535, w: 150 },
-        curp: { x: 306, y: 490, w: 200 },
-        curso_line1: { x: 306, y: 435, w: 400 },
-        programa: { x: 306, y: 395, w: 300 },
-        registro: { x: 306, y: 365, w: 200 },
-        tipo_formacion: { x: 170, y: 340, w: 150 },
-        duracion: { x: 450, y: 340, w: 150 },
-        modalidad: { x: 170, y: 295, w: 150 },
-        periodo_line1: { x: 450, y: 302, w: 250 },
-        lugar: { x: 170, y: 235, w: 250 },
-        fecha: { x: 450, y: 235, w: 200 },
-        sello: { x: 165, y: 160, w: 300 },
-        qr: { x: 54, y: 70, w: 100, h: 100 }
-      };
+      console.log("No se pudo obtener config de Supabase, usando valores por defecto.");
     }
 
     const fontSize = 12;
