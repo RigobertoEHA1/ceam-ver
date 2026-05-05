@@ -203,7 +203,10 @@ export async function POST(req: Request) {
     drawCenteredWrapped(textoImpresion, fontRegular, 9, impCoords.x, impCoords.y, impCoords.w || 200, 10);
 
     // 9. Código QR
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    const host = req.headers.get("host") || "localhost:3000";
+    const protocol = req.headers.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`;
+
     const validationUrl = `${baseUrl}/ValidaQR.aspx?data=${constancia.data_hash}&token=${encodeURIComponent(constancia.token)}`;
     
     const qrDataUrl = await QRCode.toDataURL(validationUrl, {
